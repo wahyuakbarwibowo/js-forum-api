@@ -1,7 +1,7 @@
-const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
-const AddedReply = require('../../../Domains/replies/entities/AddedReply');
-const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
-const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
+const ReplyRepository = require('../../Domains/replies/ReplyRepository');
+const AddedReply = require('../../Domains/replies/entities/AddedReply');
+const NotFoundError = require('../../Commons/exceptions/NotFoundError');
+const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 
 class ReplyRepositoryPostgres extends ReplyRepository {
   constructor(pool, idGenerator) {
@@ -75,6 +75,14 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       ...reply,
       content: reply.is_deleted ? '**balasan telah dihapus**' : reply.content,
     }));
+  }
+
+  async softDeleteReply(replyId) {
+    const query = {
+      text: 'UPDATE replies SET is_deleted = TRUE WHERE id = $1',
+      values: [replyId],
+    };
+    await this._pool.query(query);
   }
 }
 

@@ -6,11 +6,10 @@ const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 describe('AddThreadUseCase', () => {
   it('should orchestrate add thread correctly', async () => {
     // Arrange
-    const useCasePayload = { title: 'Judul', body: 'Isi', owner: 'user-123' };
+    const useCasePayload = { title: 'Judul', body: 'Isi' };
     const expectedAddedThread = new AddedThread({
       id: 'thread-123',
       title: 'Judul',
-      owner: 'user-123',
     });
 
     const mockThreadRepository = new ThreadRepository();
