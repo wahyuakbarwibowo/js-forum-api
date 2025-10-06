@@ -17,6 +17,16 @@ const CommentsTableTestHelper = {
     await pool.query(query);
   },
 
+  async findCommentsByThreadId(threadId) {
+    const query = {
+      text: 'SELECT * FROM comments WHERE thread_id = $1',
+      values: [threadId],
+    };
+
+    const result = await pool.query(query);
+    return result.rows;
+  },
+
   async findCommentById(id) {
     const query = {
       text: 'SELECT * FROM comments WHERE id = $1',

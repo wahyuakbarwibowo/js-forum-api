@@ -18,9 +18,9 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
     await pool.end();
   });
 
-  it('should respond 201 and persist reply', async () => {
-    // Arrange
-    const server = await createServer(container);
+  // 🔧 helper untuk register & login user (mengembalikan accessToken + userId)
+  const registerAndLoginUser = async (server) => {
+    // register user via endpoint
     await server.inject({
       method: 'POST',
       url: '/users',
@@ -30,17 +30,39 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
         fullname: 'Dicoding Indonesia',
       },
     });
-    await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
-    await CommentsTableTestHelper.addComment({
-      id: 'comment-123', threadId: 'thread-123', owner: 'user-123',
-    });
 
+    // login untuk dapatkan token
     const authResponse = await server.inject({
       method: 'POST',
       url: '/authentications',
       payload: { username: 'dicoding', password: 'secret' },
     });
+
     const { accessToken } = JSON.parse(authResponse.payload).data;
+
+    // ambil user id langsung dari tabel
+    const users = await UsersTableTestHelper.findUsersByUsername('dicoding');
+    const userId = users[0].id;
+
+    return { accessToken, userId };
+  };
+
+  it('should respond 201 and persist reply', async () => {
+    // Arrange
+    const server = await createServer(container);
+    const { accessToken, userId } = await registerAndLoginUser(server);
+
+    // buat thread & comment secara langsung via helper
+    await ThreadsTableTestHelper.addThread({
+      id: 'thread-123',
+      owner: userId,
+    });
+
+    await CommentsTableTestHelper.addComment({
+      id: 'comment-123',
+      threadId: 'thread-123',
+      owner: userId,
+    });
 
     // Act
     const response = await server.inject({
