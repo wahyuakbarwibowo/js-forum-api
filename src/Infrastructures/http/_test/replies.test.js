@@ -20,31 +20,40 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
 
   // 🔧 helper untuk register & login user (mengembalikan accessToken + userId)
   const registerAndLoginUser = async (server) => {
-    // register user via endpoint
-    await server.inject({
-      method: 'POST',
-      url: '/users',
-      payload: {
-        username: 'dicoding',
-        password: 'secret',
-        fullname: 'Dicoding Indonesia',
-      },
-    });
+    const registerAndLoginUser = async (server) => {
+      // 1️⃣ Register user
+      const registerResponse = await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'dicoding',
+          password: 'secret',
+          fullname: 'Dicoding Indonesia',
+        },
+      });
 
-    // login untuk dapatkan token
-    const authResponse = await server.inject({
-      method: 'POST',
-      url: '/authentications',
-      payload: { username: 'dicoding', password: 'secret' },
-    });
+      const registerJson = JSON.parse(registerResponse.payload);
+      expect(registerResponse.statusCode).toBe(201);
+      expect(registerJson.status).toBe('success');
 
-    const { accessToken } = JSON.parse(authResponse.payload).data;
+      // 2️⃣ Login untuk dapatkan token
+      const authResponse = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: { username: 'dicoding', password: 'secret' },
+      });
 
-    // ambil user id langsung dari tabel
-    const users = await UsersTableTestHelper.findUsersByUsername('dicoding');
-    const userId = users[0].id;
+      console.log('authResponse:', authResponse.statusCode, authResponse.payload); // 👀 debug
 
-    return { accessToken, userId };
+      expect(authResponse.statusCode).toBe(201); // Pastikan login sukses
+      const { accessToken } = JSON.parse(authResponse.payload).data;
+
+      // 3️⃣ Ambil userId dari tabel
+      const users = await UsersTableTestHelper.findUsersByUsername('dicoding');
+      const userId = users[0].id;
+
+      return { accessToken, userId };
+    };
   };
 
   it('should respond 201 and persist reply', async () => {

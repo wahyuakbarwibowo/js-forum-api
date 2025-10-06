@@ -6,6 +6,10 @@ const pool = require('../../database/postgres/pool');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 
 describe('UserRepositoryPostgres', () => {
+  beforeEach(async () => {
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterEach(async () => {
     await UsersTableTestHelper.cleanTable();
   });

@@ -24,7 +24,7 @@ const RepliesTableTestHelper = {
       values: [id],
     };
     const result = await pool.query(query);
-    return result.rows[0];
+    return result.rows;
   },
 
   async cleanTable() {
