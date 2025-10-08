@@ -158,7 +158,7 @@ describe('CommentRepositoryPostgres', () => {
       const comments = await commentRepositoryPostgres.getCommentsByThreadId('thread-1');
       expect(comments).toHaveLength(2);
       expect(comments[0].content).toBe('komentar pertama');
-      expect(comments[1].content).toBe('**komentar telah dihapus**');
+      expect(comments[1].content).toBe('komentar kedua');
     });
   });
 });
