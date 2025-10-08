@@ -7,6 +7,13 @@ const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelp
 const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
 
 describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
+  beforeEach(async () => {
+    await RepliesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterEach(async () => {
     await RepliesTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
@@ -18,42 +25,37 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
     await pool.end();
   });
 
-  // 🔧 helper untuk register & login user (mengembalikan accessToken + userId)
   const registerAndLoginUser = async (server) => {
-    const registerAndLoginUser = async (server) => {
-      // 1️⃣ Register user
-      const registerResponse = await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: {
-          username: 'dicoding',
-          password: 'secret',
-          fullname: 'Dicoding Indonesia',
-        },
-      });
+    // 1️⃣ Register user
+    const registerResponse = await server.inject({
+      method: 'POST',
+      url: '/users',
+      payload: {
+        username: 'dicoding',
+        password: 'secret',
+        fullname: 'Dicoding Indonesia',
+      },
+    });
 
-      const registerJson = JSON.parse(registerResponse.payload);
-      expect(registerResponse.statusCode).toBe(201);
-      expect(registerJson.status).toBe('success');
+    const registerJson = JSON.parse(registerResponse.payload);
+    expect(registerResponse.statusCode).toBe(201);
+    expect(registerJson.status).toBe('success');
 
-      // 2️⃣ Login untuk dapatkan token
-      const authResponse = await server.inject({
-        method: 'POST',
-        url: '/authentications',
-        payload: { username: 'dicoding', password: 'secret' },
-      });
+    // 2️⃣ Login untuk dapatkan token
+    const authResponse = await server.inject({
+      method: 'POST',
+      url: '/authentications',
+      payload: { username: 'dicoding', password: 'secret' },
+    });
 
-      console.log('authResponse:', authResponse.statusCode, authResponse.payload); // 👀 debug
+    expect(authResponse.statusCode).toBe(201); // Pastikan login sukses
+    const { accessToken } = JSON.parse(authResponse.payload).data;
 
-      expect(authResponse.statusCode).toBe(201); // Pastikan login sukses
-      const { accessToken } = JSON.parse(authResponse.payload).data;
+    // 3️⃣ Ambil userId dari tabel
+    const users = await UsersTableTestHelper.findUsersByUsername('dicoding');
+    const userId = users[0].id;
 
-      // 3️⃣ Ambil userId dari tabel
-      const users = await UsersTableTestHelper.findUsersByUsername('dicoding');
-      const userId = users[0].id;
-
-      return { accessToken, userId };
-    };
+    return { accessToken, userId };
   };
 
   it('should respond 201 and persist reply', async () => {

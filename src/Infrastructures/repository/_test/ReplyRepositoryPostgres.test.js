@@ -18,6 +18,13 @@ describe('ReplyRepositoryPostgres', () => {
     await UsersTableTestHelper.cleanTable();
   });
 
+  afterEach(async () => {
+    await RepliesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterAll(async () => {
     await pool.end();
   });

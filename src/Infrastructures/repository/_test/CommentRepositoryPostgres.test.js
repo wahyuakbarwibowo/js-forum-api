@@ -16,6 +16,12 @@ describe('CommentRepositoryPostgres', () => {
     await CommentsTableTestHelper.cleanTable();
   });
 
+  afterEach(async () => {
+    await ThreadsTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterAll(async () => {
     await pool.end();
   });
