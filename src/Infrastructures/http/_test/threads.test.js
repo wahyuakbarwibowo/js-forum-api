@@ -21,7 +21,6 @@ describe('/threads endpoint', () => {
 
   describe('POST /threads', () => {
     it('should response 201 and persist thread', async () => {
-      // Arrange
       const server = await createServer(container);
       await server.inject({
         method: 'POST',
@@ -41,7 +40,6 @@ describe('/threads endpoint', () => {
 
       const payload = { title: 'sebuah thread', body: 'isi thread' };
 
-      // Act
       const response = await server.inject({
         method: 'POST',
         url: '/threads',
@@ -49,7 +47,6 @@ describe('/threads endpoint', () => {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
-      // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');

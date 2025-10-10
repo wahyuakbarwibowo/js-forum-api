@@ -4,7 +4,6 @@ const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 
-// test helpers
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
@@ -31,7 +30,6 @@ describe('ReplyRepositoryPostgres', () => {
 
   describe('addReply function', () => {
     it('should persist reply and return AddedReply correctly', async () => {
-      // Arrange
       const fakeIdGenerator = () => '123';
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
 
@@ -53,10 +51,8 @@ describe('ReplyRepositoryPostgres', () => {
         owner: 'user-123',
       };
 
-      // Action
       const addedReply = await replyRepositoryPostgres.addReply(newReply);
 
-      // Assert
       const replies = await RepliesTableTestHelper.findReplyById('reply-123');
       expect(replies).toHaveLength(1);
       expect(addedReply).toStrictEqual(new AddedReply({
@@ -118,16 +114,55 @@ describe('ReplyRepositoryPostgres', () => {
   });
 
   describe('softDeleteReply function', () => {
-    it('should set is_deleted to true', async () => {
+    it('should set is_deleted to true when called', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
       await CommentsTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
-      await RepliesTableTestHelper.addReply({ id: 'reply-1', commentId: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
+      await RepliesTableTestHelper.addReply({
+        id: 'reply-1',
+        commentId: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+        content: 'balasan awal',
+      });
+
+      const before = await RepliesTableTestHelper.findReplyById('reply-1');
+      expect(before[0].is_deleted).toBe(false);
 
       await replyRepositoryPostgres.softDeleteReply('reply-1');
-      const replies = await RepliesTableTestHelper.findReplyById('reply-1');
-      expect(replies[0].is_deleted).toBe(true);
+
+      const after = await RepliesTableTestHelper.findReplyById('reply-1');
+      expect(after).toHaveLength(1);
+      expect(after[0].is_deleted).toBe(true);
+      expect(after[0].content).toBe('balasan awal');
+    });
+
+    it('should not throw error even if reply already deleted', async () => {
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+      await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
+      await RepliesTableTestHelper.addReply({
+        id: 'reply-2',
+        commentId: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+        content: 'sudah dihapus',
+        isDeleted: true,
+      });
+
+      await expect(replyRepositoryPostgres.softDeleteReply('reply-2'))
+        .resolves.not.toThrow();
+
+      const result = await RepliesTableTestHelper.findReplyById('reply-2');
+      expect(result[0].is_deleted).toBe(true);
+    });
+
+    it('should not throw error when reply does not exist (idempotent)', async () => {
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+      await expect(replyRepositoryPostgres.softDeleteReply('reply-notfound'))
+        .resolves.not.toThrow();
     });
   });
 

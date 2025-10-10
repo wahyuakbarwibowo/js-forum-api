@@ -75,14 +75,6 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       content: row.is_deleted ? '**balasan telah dihapus**' : row.content,
     }));
   }
-
-  async softDeleteReply(replyId) {
-    const query = {
-      text: 'UPDATE replies SET is_deleted = TRUE WHERE id = $1',
-      values: [replyId],
-    };
-    await this._pool.query(query);
-  }
 }
 
 module.exports = ReplyRepositoryPostgres;

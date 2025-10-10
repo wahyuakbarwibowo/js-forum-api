@@ -26,7 +26,6 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
   });
 
   const registerAndLoginUser = async (server) => {
-    // 1️⃣ Register user
     const registerResponse = await server.inject({
       method: 'POST',
       url: '/users',
@@ -41,17 +40,16 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
     expect(registerResponse.statusCode).toBe(201);
     expect(registerJson.status).toBe('success');
 
-    // 2️⃣ Login untuk dapatkan token
     const authResponse = await server.inject({
       method: 'POST',
       url: '/authentications',
       payload: { username: 'dicoding', password: 'secret' },
     });
 
-    expect(authResponse.statusCode).toBe(201); // Pastikan login sukses
+    expect(authResponse.statusCode).toBe(201);
     const { accessToken } = JSON.parse(authResponse.payload).data;
 
-    // 3️⃣ Ambil userId dari tabel
+
     const users = await UsersTableTestHelper.findUsersByUsername('dicoding');
     const userId = users[0].id;
 
@@ -59,11 +57,9 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
   };
 
   it('should respond 201 and persist reply', async () => {
-    // Arrange
     const server = await createServer(container);
     const { accessToken, userId } = await registerAndLoginUser(server);
 
-    // buat thread & comment secara langsung via helper
     await ThreadsTableTestHelper.addThread({
       id: 'thread-123',
       owner: userId,
@@ -75,7 +71,6 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
       owner: userId,
     });
 
-    // Act
     const response = await server.inject({
       method: 'POST',
       url: '/threads/thread-123/comments/comment-123/replies',
@@ -83,7 +78,6 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    // Assert
     const responseJson = JSON.parse(response.payload);
     expect(response.statusCode).toEqual(201);
     expect(responseJson.status).toEqual('success');

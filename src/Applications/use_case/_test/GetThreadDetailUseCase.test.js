@@ -2,7 +2,6 @@ const GetThreadDetailUseCase = require('../GetThreadDetailUseCase');
 
 describe('GetThreadDetailUseCase', () => {
   it('should orchestrate get thread detail correctly', async () => {
-    // Arrange
     const threadId = 'thread-123';
 
     const mockThread = {
@@ -49,7 +48,6 @@ describe('GetThreadDetailUseCase', () => {
 
     const mockRepliesForComment124 = [];
 
-    // Mock repository dependencies
     const mockThreadRepository = {
       verifyThreadExists: jest.fn(() => Promise.resolve()),
       getThreadById: jest.fn(() => Promise.resolve(mockThread)),
@@ -65,17 +63,14 @@ describe('GetThreadDetailUseCase', () => {
       }),
     };
 
-    // Create use case instance
     const getThreadDetailUseCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
     });
 
-    // Act
     const result = await getThreadDetailUseCase.execute(threadId);
 
-    // Assert
     expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(threadId);
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(threadId);
     expect(mockCommentRepository.getCommentsByThreadId).toHaveBeenCalledWith(threadId);

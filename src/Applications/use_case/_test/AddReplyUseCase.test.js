@@ -7,13 +7,13 @@ const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 
 describe('AddReplyUseCase', () => {
   it('should orchestrate add reply correctly', async () => {
-    // Arrange
     const payload = {
       content: 'balasan',
       threadId: 'thread-123',
       commentId: 'comment-123',
       owner: 'user-123',
     };
+
     const expectedAddedReply = new AddedReply({
       id: 'reply-123',
       content: 'balasan',
@@ -26,7 +26,11 @@ describe('AddReplyUseCase', () => {
 
     mockThreadRepo.verifyThreadExists = jest.fn().mockResolvedValue();
     mockCommentRepo.verifyCommentExists = jest.fn().mockResolvedValue();
-    mockReplyRepo.addReply = jest.fn().mockResolvedValue(expectedAddedReply);
+    mockReplyRepo.addReply = jest.fn().mockResolvedValue(new AddedReply({
+      id: 'reply-123',
+      content: payload.content,
+      owner: payload.owner,
+    }));
 
     const useCase = new AddReplyUseCase({
       threadRepository: mockThreadRepo,
@@ -34,10 +38,8 @@ describe('AddReplyUseCase', () => {
       replyRepository: mockReplyRepo,
     });
 
-    // Act
     const result = await useCase.execute(payload);
 
-    // Assert
     expect(mockThreadRepo.verifyThreadExists).toBeCalledWith('thread-123');
     expect(mockCommentRepo.verifyCommentExists).toBeCalledWith('comment-123');
     expect(mockReplyRepo.addReply).toBeCalledWith(new NewReply(payload));

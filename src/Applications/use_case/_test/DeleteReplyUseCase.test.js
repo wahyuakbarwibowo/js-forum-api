@@ -2,7 +2,6 @@ const DeleteReplyUseCase = require('../DeleteReplyUseCase');
 
 describe('DeleteReplyUseCase', () => {
   it('should orchestrate delete reply action correctly', async () => {
-    // Arrange
     const useCasePayload = {
       threadId: 'thread-123',
       commentId: 'comment-123',
@@ -10,7 +9,6 @@ describe('DeleteReplyUseCase', () => {
       owner: 'user-123',
     };
 
-    // Mock semua repository
     const mockThreadRepository = {
       verifyThreadExists: jest.fn(() => Promise.resolve()),
     };
@@ -23,17 +21,14 @@ describe('DeleteReplyUseCase', () => {
       softDeleteReply: jest.fn(() => Promise.resolve()),
     };
 
-    // Buat instance use case
     const deleteReplyUseCase = new DeleteReplyUseCase({
       replyRepository: mockReplyRepository,
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
     });
 
-    // Act
     await deleteReplyUseCase.execute(useCasePayload);
 
-    // Assert
     expect(mockThreadRepository.verifyThreadExists)
       .toHaveBeenCalledWith(useCasePayload.threadId);
 

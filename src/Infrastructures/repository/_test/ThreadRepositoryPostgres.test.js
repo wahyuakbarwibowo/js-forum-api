@@ -3,7 +3,6 @@ const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 
-// Helpers
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 
@@ -24,7 +23,6 @@ describe('ThreadRepositoryPostgres', () => {
 
   describe('addThread function', () => {
     it('should persist new thread and return AddedThread correctly', async () => {
-      // Arrange
       const fakeIdGenerator = () => '123';
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
@@ -35,10 +33,8 @@ describe('ThreadRepositoryPostgres', () => {
         owner: 'user-123',
       };
 
-      // Action
       const addedThread = await threadRepositoryPostgres.addThread(newThread);
 
-      // Assert
       const threads = await ThreadsTableTestHelper.findThreadById('thread-123');
       expect(threads).toHaveLength(1);
       expect(addedThread).toStrictEqual(

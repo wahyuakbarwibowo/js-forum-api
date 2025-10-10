@@ -7,7 +7,6 @@ const NewAuth = require('../../../Domains/authentications/entities/NewAuth');
 
 describe('GetAuthenticationUseCase', () => {
   it('should orchestrating the get authentication action correctly', async () => {
-    // Arrange
     const useCasePayload = {
       username: 'dicoding',
       password: 'secret',
@@ -21,7 +20,6 @@ describe('GetAuthenticationUseCase', () => {
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
     const mockPasswordHash = new PasswordHash();
 
-    // Mocking
     mockUserRepository.getPasswordByUsername = jest.fn()
       .mockImplementation(() => Promise.resolve('encrypted_password'));
     mockPasswordHash.comparePassword = jest.fn()
@@ -35,7 +33,6 @@ describe('GetAuthenticationUseCase', () => {
     mockAuthenticationRepository.addToken = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
-    // create use case instance
     const loginUserUseCase = new LoginUserUseCase({
       userRepository: mockUserRepository,
       authenticationRepository: mockAuthenticationRepository,
@@ -43,10 +40,8 @@ describe('GetAuthenticationUseCase', () => {
       passwordHash: mockPasswordHash,
     });
 
-    // Action
     const actualAuthentication = await loginUserUseCase.execute(useCasePayload);
 
-    // Assert
     expect(actualAuthentication).toEqual(new NewAuth({
       accessToken: 'access_token',
       refreshToken: 'refresh_token',

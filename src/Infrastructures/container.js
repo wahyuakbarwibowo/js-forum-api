@@ -2,13 +2,11 @@
 
 const { createContainer } = require('instances-container');
 
-// external agency
 const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
 const Jwt = require('@hapi/jwt');
 const pool = require('./database/postgres/pool');
 
-// service (repository, helper, manager, etc)
 const UserRepository = require('../Domains/users/UserRepository');
 const PasswordHash = require('../Applications/security/PasswordHash');
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
@@ -20,7 +18,6 @@ const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgre
 const ReplyRepository = require('../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
 
-// use case
 const AddUserUseCase = require('../Applications/use_case/AddUserUseCase');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
 const JwtTokenManager = require('./security/JwtTokenManager');
@@ -36,10 +33,8 @@ const DeleteCommentUseCase = require('../Applications/use_case/DeleteCommentUseC
 const GetThreadDetailUseCase = require('../Applications/use_case/GetThreadDetailUseCase');
 const DeleteReplyUseCase = require('../Applications/use_case/DeleteReplyUseCase');
 
-// creating container
 const container = createContainer();
 
-// registering services and repository
 container.register([
   {
     key: UserRepository.name,
@@ -126,7 +121,6 @@ container.register([
   },
 ]);
 
-// registering use cases
 container.register([
   {
     key: AddUserUseCase.name,

@@ -7,13 +7,10 @@ class AddThreadUseCase {
   }
 
   async execute(useCasePayload) {
-    // buat entitas baru
     const newThread = new NewThread(useCasePayload);
 
-    // simpan ke repository
     const addedThreadData = await this._threadRepository.addThread(newThread);
 
-    // bungkus hasil repository ke entitas domain AddedThread
     return new AddedThread(addedThreadData);
   }
 }

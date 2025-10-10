@@ -10,14 +10,11 @@ class AddReplyUseCase {
   async execute(useCasePayload) {
     const { content, threadId, commentId, owner } = useCasePayload;
 
-    // Pastikan thread & comment-nya valid
     await this._threadRepository.verifyThreadExists(threadId);
     await this._commentRepository.verifyCommentExists(commentId);
 
-    // Buat entity reply baru
     const newReply = new NewReply({ content, threadId, commentId, owner });
 
-    // Simpan ke repository
     return this._replyRepository.addReply(newReply);
   }
 }
