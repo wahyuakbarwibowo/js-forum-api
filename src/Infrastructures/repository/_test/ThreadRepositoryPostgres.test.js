@@ -50,8 +50,9 @@ describe('ThreadRepositoryPostgres', () => {
   describe('verifyThreadExists function', () => {
     it('should throw NotFoundError when thread does not exist', async () => {
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+
       await expect(threadRepositoryPostgres.verifyThreadExists('thread-xxx'))
-        .rejects.toThrowError(NotFoundError);
+        .rejects.toThrow(NotFoundError);
     });
 
     it('should not throw error when thread exists', async () => {
@@ -60,7 +61,7 @@ describe('ThreadRepositoryPostgres', () => {
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
 
       await expect(threadRepositoryPostgres.verifyThreadExists('thread-1'))
-        .resolves.not.toThrowError(NotFoundError);
+        .resolves.not.toThrow();
     });
   });
 
@@ -68,12 +69,13 @@ describe('ThreadRepositoryPostgres', () => {
     it('should throw NotFoundError when thread not found', async () => {
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
       await expect(threadRepositoryPostgres.getThreadById('thread-xxx'))
-        .rejects.toThrowError(NotFoundError);
+        .rejects.toThrow(NotFoundError);
     });
 
     it('should return thread data correctly when found', async () => {
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
+
       const date = new Date().toISOString();
       await ThreadsTableTestHelper.addThread({
         id: 'thread-1',

@@ -18,7 +18,7 @@ class UserRepositoryPostgres extends UserRepository {
     const result = await this._pool.query(query);
 
     if (result.rowCount) {
-      throw new InvariantError('username tidak tersedia');
+      throw new InvariantError('USER_REPOSITORY.USERNAME_NOT_AVAILABLE');
     }
   }
 
@@ -45,7 +45,7 @@ class UserRepositoryPostgres extends UserRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new InvariantError('username tidak ditemukan');
+      throw new InvariantError('USER_REPOSITORY.USERNAME_NOT_FOUND');
     }
 
     return result.rows[0].password;
@@ -60,12 +60,10 @@ class UserRepositoryPostgres extends UserRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new InvariantError('user tidak ditemukan');
+      throw new InvariantError('USER_REPOSITORY.USER_NOT_FOUND');
     }
 
-    const { id } = result.rows[0];
-
-    return id;
+    return result.rows[0].id;
   }
 }
 

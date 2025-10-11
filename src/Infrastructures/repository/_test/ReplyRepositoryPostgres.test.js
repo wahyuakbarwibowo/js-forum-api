@@ -167,7 +167,7 @@ describe('ReplyRepositoryPostgres', () => {
   });
 
   describe('getRepliesByCommentId function', () => {
-    it('should return replies with proper content handling', async () => {
+    it('should return raw replies data without content transformation', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
@@ -189,9 +189,20 @@ describe('ReplyRepositoryPostgres', () => {
       });
 
       const replies = await replyRepositoryPostgres.getRepliesByCommentId('comment-1');
+
       expect(replies).toHaveLength(2);
-      expect(replies[0].content).toBe('balasan aktif');
-      expect(replies[1].content).toBe('**balasan telah dihapus**');
+      expect(replies[0]).toEqual(expect.objectContaining({
+        id: 'reply-1',
+        username: 'dicoding',
+        content: 'balasan aktif',
+        is_deleted: false,
+      }));
+      expect(replies[1]).toEqual(expect.objectContaining({
+        id: 'reply-2',
+        username: 'dicoding',
+        content: 'balasan terhapus',
+        is_deleted: true,
+      }));
     });
   });
 });

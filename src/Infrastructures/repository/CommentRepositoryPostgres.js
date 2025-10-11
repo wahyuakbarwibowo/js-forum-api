@@ -2,7 +2,7 @@ const CommentRepository = require('../../Domains/comments/CommentRepository');
 const AddedComment = require('../../Domains/comments/entities/AddedComment');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
- 
+
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
     super();
@@ -36,7 +36,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError('Komentar tidak ditemukan');
+      throw new NotFoundError('COMMENT_REPOSITORY.COMMENT_NOT_FOUND');
     }
   }
 
@@ -47,11 +47,13 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new NotFoundError('Komentar tidak ditemukan');
+    if (!result.rowCount) {
+      throw new NotFoundError('COMMENT_REPOSITORY.COMMENT_NOT_FOUND');
+    }
 
     const comment = result.rows[0];
     if (comment.owner !== owner) {
-      throw new AuthorizationError('Anda tidak berhak menghapus komentar ini');
+      throw new AuthorizationError('COMMENT_REPOSITORY.NOT_THE_OWNER');
     }
   }
 

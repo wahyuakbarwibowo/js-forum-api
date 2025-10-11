@@ -60,20 +60,19 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   }
 
   async getRepliesByCommentId(commentId) {
-    const result = await this._pool.query(`
-    SELECT replies.id, replies.content, replies.date, replies.is_deleted, users.username
-    FROM replies
-    JOIN users ON replies.owner = users.id
-    WHERE replies.comment_id = $1
-    ORDER BY replies.date ASC
-  `, [commentId]);
+    const query = {
+      text: `
+        SELECT replies.id, replies.content, replies.date, replies.is_deleted, users.username
+        FROM replies
+        JOIN users ON replies.owner = users.id
+        WHERE replies.comment_id = $1
+        ORDER BY replies.date ASC
+      `,
+      values: [commentId],
+    };
 
-    return result.rows.map(row => ({
-      id: row.id,
-      username: row.username,
-      date: row.date,
-      content: row.is_deleted ? '**balasan telah dihapus**' : row.content,
-    }));
+    const result = await this._pool.query(query);
+    return result.rows;
   }
 }
 

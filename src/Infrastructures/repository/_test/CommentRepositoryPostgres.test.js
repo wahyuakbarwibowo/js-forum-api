@@ -10,9 +10,9 @@ const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelp
 
 describe('CommentRepositoryPostgres', () => {
   beforeEach(async () => {
-    await UsersTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   afterEach(async () => {
@@ -62,7 +62,7 @@ describe('CommentRepositoryPostgres', () => {
     it('should throw NotFoundError when comment does not exist', async () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
       await expect(commentRepositoryPostgres.verifyCommentExists('comment-xxx'))
-        .rejects.toThrowError(NotFoundError);
+        .rejects.toThrow(NotFoundError);
     });
 
     it('should not throw NotFoundError when comment exists', async () => {
@@ -76,7 +76,7 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       await expect(commentRepositoryPostgres.verifyCommentExists('comment-123'))
-        .resolves.not.toThrowError(NotFoundError);
+        .resolves.not.toThrow(NotFoundError);
     });
   });
 
@@ -84,7 +84,7 @@ describe('CommentRepositoryPostgres', () => {
     it('should throw NotFoundError when comment does not exist', async () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
       await expect(commentRepositoryPostgres.verifyCommentOwner('comment-xxx', 'user-123'))
-        .rejects.toThrowError(NotFoundError);
+        .rejects.toThrow(NotFoundError);
     });
 
     it('should throw AuthorizationError when user is not the owner', async () => {
@@ -99,7 +99,7 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       await expect(commentRepositoryPostgres.verifyCommentOwner('comment-1', 'user-2'))
-        .rejects.toThrowError(AuthorizationError);
+        .rejects.toThrow(AuthorizationError);
     });
 
     it('should not throw AuthorizationError when user is the owner', async () => {
@@ -113,7 +113,7 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       await expect(commentRepositoryPostgres.verifyCommentOwner('comment-1', 'user-1'))
-        .resolves.not.toThrowError(AuthorizationError);
+        .resolves.not.toThrow();
     });
   });
 
@@ -139,6 +139,7 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
+
       await CommentsTableTestHelper.addComment({
         id: 'comment-1',
         threadId: 'thread-1',
@@ -156,17 +157,18 @@ describe('CommentRepositoryPostgres', () => {
       const comments = await commentRepositoryPostgres.getCommentsByThreadId('thread-1');
 
       expect(comments).toHaveLength(2);
-      expect(comments[0]).toHaveProperty('id', 'comment-1');
-      expect(comments[0]).toHaveProperty('username', 'dicoding');
-      expect(comments[0]).toHaveProperty('date');
-      expect(comments[0]).toHaveProperty('content', 'komentar pertama');
-      expect(comments[0]).toHaveProperty('is_deleted', false);
-
-      expect(comments[1]).toHaveProperty('id', 'comment-2');
-      expect(comments[1]).toHaveProperty('username', 'dicoding');
-      expect(comments[1]).toHaveProperty('date');
-      expect(comments[1]).toHaveProperty('content', 'komentar kedua');
-      expect(comments[1]).toHaveProperty('is_deleted', true);
+      expect(comments[0]).toEqual(expect.objectContaining({
+        id: 'comment-1',
+        username: 'dicoding',
+        content: 'komentar pertama',
+        is_deleted: false,
+      }));
+      expect(comments[1]).toEqual(expect.objectContaining({
+        id: 'comment-2',
+        username: 'dicoding',
+        content: 'komentar kedua',
+        is_deleted: true,
+      }));
     });
   });
 });

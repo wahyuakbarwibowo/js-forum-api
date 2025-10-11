@@ -18,14 +18,14 @@ class AuthenticationRepositoryPostgres extends AuthenticationRepository {
 
   async checkAvailabilityToken(token) {
     const query = {
-      text: 'SELECT * FROM authentications WHERE token = $1',
+      text: 'SELECT token FROM authentications WHERE token = $1',
       values: [token],
     };
 
     const result = await this._pool.query(query);
 
     if (result.rows.length === 0) {
-      throw new InvariantError('refresh token tidak ditemukan di database');
+      throw new InvariantError('AUTHENTICATION_REPOSITORY.TOKEN_NOT_FOUND');
     }
   }
 
