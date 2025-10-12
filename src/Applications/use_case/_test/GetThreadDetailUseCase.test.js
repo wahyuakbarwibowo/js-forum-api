@@ -52,9 +52,11 @@ describe('GetThreadDetailUseCase', () => {
       verifyThreadExists: jest.fn(() => Promise.resolve()),
       getThreadById: jest.fn(() => Promise.resolve(mockThread)),
     };
+
     const mockCommentRepository = {
       getCommentsByThreadId: jest.fn(() => Promise.resolve(mockComments)),
     };
+
     const mockReplyRepository = {
       getRepliesByCommentId: jest.fn((commentId) => {
         if (commentId === 'comment-123') return Promise.resolve(mockRepliesForComment123);
@@ -63,10 +65,15 @@ describe('GetThreadDetailUseCase', () => {
       }),
     };
 
+    const mockCommentLikeRepository = {
+      getLikeCountByCommentId: jest.fn(() => Promise.resolve(2))
+    };
+
     const getThreadDetailUseCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
+      commentLikeRepository: mockCommentLikeRepository,
     });
 
     const result = await getThreadDetailUseCase.execute(threadId);
@@ -75,6 +82,7 @@ describe('GetThreadDetailUseCase', () => {
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(threadId);
     expect(mockCommentRepository.getCommentsByThreadId).toHaveBeenCalledWith(threadId);
     expect(mockReplyRepository.getRepliesByCommentId).toHaveBeenCalledTimes(mockComments.length);
+    expect(mockCommentLikeRepository.getLikeCountByCommentId).toHaveBeenCalledTimes(mockComments.length);
 
     expect(result).toStrictEqual({
       id: 'thread-123',
@@ -88,6 +96,7 @@ describe('GetThreadDetailUseCase', () => {
           username: 'johndoe',
           date: '2023-10-05T10:10:00.000Z',
           content: 'komentar pertama',
+          likeCount: 2,
           replies: [
             {
               id: 'reply-123',
@@ -108,6 +117,7 @@ describe('GetThreadDetailUseCase', () => {
           username: 'janedoe',
           date: '2023-10-05T10:15:00.000Z',
           content: '**komentar telah dihapus**',
+          likeCount: 2,
           replies: [],
         },
       ],

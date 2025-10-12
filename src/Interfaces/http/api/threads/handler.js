@@ -1,11 +1,13 @@
 const AddThreadUseCase = require('../../../../Applications/use_case/AddThreadUseCase');
 const GetThreadDetailUseCase = require('../../../../Applications/use_case/GetThreadDetailUseCase');
+const ToggleLikeUseCase = require('../../../../Applications/use_case/ToggleLikeUseCase');
 
 class ThreadsHandler {
   constructor(container) {
     this._container = container;
     this.postThreadHandler = this.postThreadHandler.bind(this);
     this.getThreadDetailHandler = this.getThreadDetailHandler.bind(this);
+    this.putLikeHandler = this.putLikeHandler.bind(this);
   }
 
   async postThreadHandler(request, h) {
@@ -37,6 +39,20 @@ class ThreadsHandler {
       .response({
         status: 'success',
         data: { thread },
+      })
+      .code(200);
+  }
+
+  async putLikeHandler(request, h) {
+    const { id: owner } = request.auth.credentials;
+    const { threadId, commentId } = request.params;
+
+    const toggleLikeUseCase = this._container.getInstance(ToggleLikeUseCase.name);
+    await toggleLikeUseCase.execute(threadId, commentId, owner);
+
+    return h
+      .response({
+        status: 'success',
       })
       .code(200);
   }

@@ -96,4 +96,23 @@ describe('ThreadRepositoryPostgres', () => {
       });
     });
   });
+
+  describe('verifyAvailableThread function', () => {
+    it('should not throw error when thread exists', async () => {
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
+
+      // Baru tambahkan thread
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+
+      const repo = new ThreadRepositoryPostgres(pool, {});
+      await expect(repo.verifyAvailableThread('thread-123')).resolves.not.toThrow();
+    });
+
+    it('should throw error when thread does not exist', async () => {
+      const repo = new ThreadRepositoryPostgres(pool, {});
+      await expect(repo.verifyAvailableThread('thread-404')).rejects.toThrowError(
+        'THREAD_REPOSITORY.THREAD_NOT_FOUND',
+      );
+    });
+  });
 });

@@ -1,6 +1,7 @@
 const ThreadsHandler = require('../handler');
 const AddThreadUseCase = require('../../../../../Applications/use_case/AddThreadUseCase');
 const GetThreadDetailUseCase = require('../../../../../Applications/use_case/GetThreadDetailUseCase');
+const ToggleLikeUseCase = require('../../../../../Applications/use_case/ToggleLikeUseCase');
 
 describe('ThreadsHandler', () => {
   describe('postThreadHandler', () => {
@@ -27,9 +28,7 @@ describe('ThreadsHandler', () => {
           body: 'isi thread',
         },
         auth: {
-          credentials: {
-            id: 'user-123',
-          },
+          credentials: { id: 'user-123' },
         },
       };
 
@@ -74,12 +73,10 @@ describe('ThreadsHandler', () => {
 
       const handler = new ThreadsHandler(mockContainer);
 
-      const request = {
-        params: { threadId: 'thread-123' },
-      };
+      const request = { params: { threadId: 'thread-123' } };
 
       const h = {
-        response: jest.fn((res) => ({
+        response: jest.fn().mockImplementation((res) => ({
           code: jest.fn().mockReturnValue(res),
         })),
       };
@@ -91,6 +88,49 @@ describe('ThreadsHandler', () => {
       expect(response).toEqual({
         status: 'success',
         data: { thread: mockThreadDetail },
+      });
+    });
+  });
+
+  describe('putLikeHandler', () => {
+    it('should call ToggleLikeUseCase with correct params and return success response', async () => {
+      const mockToggleLikeUseCase = {
+        execute: jest.fn().mockResolvedValue(),
+      };
+
+      const mockContainer = {
+        getInstance: jest.fn(() => mockToggleLikeUseCase),
+      };
+
+      const handler = new ThreadsHandler(mockContainer);
+
+      const request = {
+        auth: {
+          credentials: { id: 'user-123' },
+        },
+        params: {
+          threadId: 'thread-123',
+          commentId: 'comment-456',
+        },
+      };
+
+      const h = {
+        response: jest.fn().mockImplementation((res) => ({
+          code: jest.fn().mockReturnValue(res),
+        })),
+      };
+
+      const response = await handler.putLikeHandler(request, h);
+
+      expect(mockContainer.getInstance).toBeCalledWith(ToggleLikeUseCase.name);
+      expect(mockToggleLikeUseCase.execute).toBeCalledWith(
+        'thread-123',
+        'comment-456',
+        'user-123',
+      );
+
+      expect(response).toEqual({
+        status: 'success',
       });
     });
   });

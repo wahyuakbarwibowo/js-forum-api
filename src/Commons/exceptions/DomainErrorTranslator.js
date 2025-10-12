@@ -52,6 +52,8 @@ DomainErrorTranslator._directories = {
   'USER_REPOSITORY.USERNAME_NOT_AVAILABLE': new InvariantError('username tidak tersedia'),
   'USER_REPOSITORY.USERNAME_NOT_FOUND': new InvariantError('username tidak ditemukan'),
   'USER_REPOSITORY.USER_NOT_FOUND': new InvariantError('pengguna tidak ditemukan'),
+  'THREAD_REPOSITORY.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ditemukan'),
+  'COMMENT_REPOSITORY.COMMENT_NOT_FOUND': new NotFoundError('Komentar tidak ditemukan'),
 };
 
 module.exports = DomainErrorTranslator;
