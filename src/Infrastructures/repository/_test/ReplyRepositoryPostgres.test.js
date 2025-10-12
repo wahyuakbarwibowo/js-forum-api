@@ -34,10 +34,7 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
 
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
-      await ThreadsTableTestHelper.addThread({
-        id: 'thread-123',
-        owner: 'user-123',
-      });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
       await CommentsTableTestHelper.addComment({
         id: 'comment-123',
         threadId: 'thread-123',
@@ -55,11 +52,13 @@ describe('ReplyRepositoryPostgres', () => {
 
       const replies = await RepliesTableTestHelper.findReplyById('reply-123');
       expect(replies).toHaveLength(1);
-      expect(addedReply).toStrictEqual(new AddedReply({
-        id: 'reply-123',
-        content: 'sebuah balasan',
-        owner: 'user-123',
-      }));
+      expect(addedReply).toStrictEqual(
+        new AddedReply({
+          id: 'reply-123',
+          content: 'sebuah balasan',
+          owner: 'user-123',
+        }),
+      );
     });
   });
 
@@ -68,14 +67,25 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await expect(replyRepositoryPostgres.verifyReplyExists('reply-xxx'))
         .rejects.toThrowError(NotFoundError);
+      await expect(replyRepositoryPostgres.verifyReplyExists('reply-xxx'))
+        .rejects.toThrow('REPLY_REPOSITORY.REPLY_NOT_FOUND');
     });
 
     it('should not throw error when reply exists', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
-      await RepliesTableTestHelper.addReply({ id: 'reply-1', commentId: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
+      await RepliesTableTestHelper.addReply({
+        id: 'reply-1',
+        commentId: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
 
       await expect(replyRepositoryPostgres.verifyReplyExists('reply-1'))
         .resolves.not.toThrowError();
@@ -87,6 +97,8 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await expect(replyRepositoryPostgres.verifyReplyOwner('reply-xxx', 'user-123'))
         .rejects.toThrowError(NotFoundError);
+      await expect(replyRepositoryPostgres.verifyReplyOwner('reply-xxx', 'user-123'))
+        .rejects.toThrow('REPLY_REPOSITORY.REPLY_NOT_FOUND');
     });
 
     it('should throw AuthorizationError when owner does not match', async () => {
@@ -94,19 +106,39 @@ describe('ReplyRepositoryPostgres', () => {
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await UsersTableTestHelper.addUser({ id: 'user-2', username: 'bukanpemilik' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
-      await RepliesTableTestHelper.addReply({ id: 'reply-1', commentId: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
+      await RepliesTableTestHelper.addReply({
+        id: 'reply-1',
+        commentId: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
 
       await expect(replyRepositoryPostgres.verifyReplyOwner('reply-1', 'user-2'))
         .rejects.toThrowError(AuthorizationError);
+      await expect(replyRepositoryPostgres.verifyReplyOwner('reply-1', 'user-2'))
+        .rejects.toThrow('REPLY_REPOSITORY.NOT_AUTHORIZED');
     });
 
     it('should not throw error when owner matches', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
-      await RepliesTableTestHelper.addReply({ id: 'reply-1', commentId: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
+      await RepliesTableTestHelper.addReply({
+        id: 'reply-1',
+        commentId: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
 
       await expect(replyRepositoryPostgres.verifyReplyOwner('reply-1', 'user-1'))
         .resolves.not.toThrowError();
@@ -118,7 +150,11 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
       await RepliesTableTestHelper.addReply({
         id: 'reply-1',
         commentId: 'comment-1',
@@ -142,7 +178,11 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
       await RepliesTableTestHelper.addReply({
         id: 'reply-2',
         commentId: 'comment-1',
@@ -152,8 +192,7 @@ describe('ReplyRepositoryPostgres', () => {
         isDeleted: true,
       });
 
-      await expect(replyRepositoryPostgres.softDeleteReply('reply-2'))
-        .resolves.not.toThrow();
+      await expect(replyRepositoryPostgres.softDeleteReply('reply-2')).resolves.not.toThrow();
 
       const result = await RepliesTableTestHelper.findReplyById('reply-2');
       expect(result[0].is_deleted).toBe(true);
@@ -161,8 +200,7 @@ describe('ReplyRepositoryPostgres', () => {
 
     it('should not throw error when reply does not exist (idempotent)', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
-      await expect(replyRepositoryPostgres.softDeleteReply('reply-notfound'))
-        .resolves.not.toThrow();
+      await expect(replyRepositoryPostgres.softDeleteReply('reply-notfound')).resolves.not.toThrow();
     });
   });
 
@@ -171,7 +209,11 @@ describe('ReplyRepositoryPostgres', () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
       await UsersTableTestHelper.addUser({ id: 'user-1', username: 'dicoding' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', owner: 'user-1' });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-1',
+        threadId: 'thread-1',
+        owner: 'user-1',
+      });
       await RepliesTableTestHelper.addReply({
         id: 'reply-1',
         commentId: 'comment-1',
@@ -191,18 +233,22 @@ describe('ReplyRepositoryPostgres', () => {
       const replies = await replyRepositoryPostgres.getRepliesByCommentId('comment-1');
 
       expect(replies).toHaveLength(2);
-      expect(replies[0]).toEqual(expect.objectContaining({
-        id: 'reply-1',
-        username: 'dicoding',
-        content: 'balasan aktif',
-        is_deleted: false,
-      }));
-      expect(replies[1]).toEqual(expect.objectContaining({
-        id: 'reply-2',
-        username: 'dicoding',
-        content: 'balasan terhapus',
-        is_deleted: true,
-      }));
+      expect(replies[0]).toEqual(
+        expect.objectContaining({
+          id: 'reply-1',
+          username: 'dicoding',
+          content: 'balasan aktif',
+          is_deleted: false,
+        }),
+      );
+      expect(replies[1]).toEqual(
+        expect.objectContaining({
+          id: 'reply-2',
+          username: 'dicoding',
+          content: 'balasan terhapus',
+          is_deleted: true,
+        }),
+      );
     });
   });
 });

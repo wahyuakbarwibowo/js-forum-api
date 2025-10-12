@@ -34,7 +34,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       values: [replyId],
     };
     const result = await this._pool.query(query);
-    if (!result.rowCount) throw new NotFoundError('Balasan tidak ditemukan');
+    if (!result.rowCount) throw new NotFoundError('REPLY_REPOSITORY.REPLY_NOT_FOUND');
   }
 
   async verifyReplyOwner(replyId, owner) {
@@ -43,11 +43,11 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       values: [replyId],
     };
     const result = await this._pool.query(query);
-    if (!result.rowCount) throw new NotFoundError('Balasan tidak ditemukan');
+    if (!result.rowCount) throw new NotFoundError('REPLY_REPOSITORY.REPLY_NOT_FOUND');
 
     const reply = result.rows[0];
     if (reply.owner !== owner) {
-      throw new AuthorizationError('Anda tidak berhak menghapus balasan ini');
+      throw new AuthorizationError('REPLY_REPOSITORY.NOT_AUTHORIZED');
     }
   }
 

@@ -1,4 +1,6 @@
 const InvariantError = require('./InvariantError');
+const AuthorizationError = require('./AuthorizationError');
+const NotFoundError = require('./NotFoundError');
 
 const DomainErrorTranslator = {
   translate(error) {
@@ -41,6 +43,15 @@ DomainErrorTranslator._directories = {
   'NEW_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
     'tidak dapat menambahkan balasan karena tipe data tidak sesuai'
   ),
+  'AUTHENTICATION_REPOSITORY.TOKEN_NOT_FOUND': new InvariantError(
+    'refresh token tidak ditemukan di database'
+  ),
+  'USER_REPOSITORY.USERNAME_NOT_AVAILABLE': new InvariantError('username tidak tersedia'),
+  'REPLY_REPOSITORY.REPLY_NOT_FOUND': new NotFoundError('Balasan tidak ditemukan'),
+  'REPLY_REPOSITORY.NOT_AUTHORIZED': new AuthorizationError('Anda tidak berhak menghapus balasan ini'),
+  'USER_REPOSITORY.USERNAME_NOT_AVAILABLE': new InvariantError('username tidak tersedia'),
+  'USER_REPOSITORY.USERNAME_NOT_FOUND': new InvariantError('username tidak ditemukan'),
+  'USER_REPOSITORY.USER_NOT_FOUND': new InvariantError('pengguna tidak ditemukan'),
 };
 
 module.exports = DomainErrorTranslator;
