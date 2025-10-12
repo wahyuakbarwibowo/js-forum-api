@@ -44,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Run database migrations
-        run: npm run migrate:test
+        run: npm run migrate:test up
 
       - name: Run tests
         run: npm test
