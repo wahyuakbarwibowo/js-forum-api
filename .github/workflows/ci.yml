@@ -31,5 +31,5 @@ jobs:
         with:
           node-version: 22
       - run: npm i
-      - run: npm run migrate:test
+      - run: npm run migrate:test up
       - run: npm test
