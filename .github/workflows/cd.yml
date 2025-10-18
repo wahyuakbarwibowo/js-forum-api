@@ -1,32 +1,25 @@
 name: CD Forum API
-
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
-    name: Dummy Deployment
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build application
-        run: npm run build || echo "No build step needed"
-
-      - name: Simulate Deployment
-        run: |
-          echo "🚀 Starting deployment process..."
-          echo "✅ Code pushed to main branch."
-          echo "✅ Running post-deploy tasks..."
-          echo "🎉 Deployment completed successfully!"
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            cd /var/www/forum-api
+            git pull origin main
+            npm install --production
+            pm2 restart forum-api
