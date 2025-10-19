@@ -152,4 +152,4 @@ Dilarang memperbanyak, memodifikasi, atau menyebarkan ulang proyek ini tanpa izi
 
 ---
 
-**Dibuat dengan ❤️ oleh [Nama Anda]**
+**Dibuat dengan ❤️ oleh ChatGPT**
